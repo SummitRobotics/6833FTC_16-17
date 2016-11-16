@@ -47,6 +47,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.toDegrees;
+
 /**
  * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
  * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
@@ -72,7 +75,12 @@ public class mAuto extends LinearOpMode {
     DcMotor lfDrive;
     DcMotor lbDrive;
 
-    public void setAllPower(float power){
+    final int wheelRPM = 135;
+    final double wheelDiameter = 4;
+    final float spinTime = (float) 2.78; //Please forgive me
+    final float timePerDegree = spinTime / 360;
+
+    public void setAllPower(double power){
         rfDrive.setPower(-power);
         rbDrive.setPower(power);
         lfDrive.setPower(power);
@@ -80,7 +88,7 @@ public class mAuto extends LinearOpMode {
 
     }
 
-    public void driveForTime(float power, float time, Boolean stopAfter){
+    public void driveForTime(double power, double time, Boolean stopAfter){
         try {
             runtime.reset();
             while (opModeIsActive() && runtime.seconds() < time) {
@@ -97,17 +105,39 @@ public class mAuto extends LinearOpMode {
         }
     }
 
+    public void driveForDistance(int inches, double rawPower, boolean stopAfter){
+
+
+        double power = Math.abs(rawPower);
+
+         double inPerSec= 1 / ((wheelRPM * power) * (wheelDiameter * PI) / 60);
+
+        driveForTime(power, inPerSec * inches, stopAfter);
+
+    }
+
+    //Negative power for left turn, positive power for right
+    public void turnForDegrees(float degrees, float power, boolean stopAfter){
+        String Dir;
+        if(power > 0){
+            Dir = "R";
+        }else{
+            Dir = "L";
+        }
+        turnForTime(power, degrees * timePerDegree, Dir, stopAfter);
+    }
+
     //Direction takes only two values! L for left and R for right. Error handling is setup if you do it wrong, but it's still not good
 
-    public void turnForTime(float power, float time, String direction, Boolean stopAfter){
-        try{
+    public void turnForTime(float power,  float time, String direction, Boolean stopAfter){
+
             runtime.reset();
             while(opModeIsActive() && runtime.seconds() < time){
                 if(direction == "R"){
-                    rfDrive.setPower(-power);
+                    rfDrive.setPower(power);
                     rbDrive.setPower(power);
 
-                    lfDrive.setPower(-power);
+                    lfDrive.setPower(power);
                     lbDrive.setPower(power);
                 }
                 else if(direction == "L"){
@@ -128,10 +158,7 @@ public class mAuto extends LinearOpMode {
             if(stopAfter){
                 setAllPower(0);
             }
-        }finally {
-            telemetry.addData("Exception Caught", "Something went wrong while trying to turnForTime()");
-            telemetry.update();
-        }
+
     }
 
 
@@ -162,11 +189,12 @@ public class mAuto extends LinearOpMode {
 
 
         //Main auto. For power setting please use the abstraction functions above, try not to set the power manually for neatness sake.
+        while(true) {
+            driveForDistance(30, 1, true);
+            turnForDegrees(90, 1, true);
 
-        driveForTime(1,3.0f,true);
-        turnForTime(1,1.0f,"L",true);
-        driveForTime(1,2.0f,true);
+        }
 
-        setAllPower(0);
     }
+
 }
