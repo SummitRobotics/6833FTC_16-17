@@ -78,7 +78,9 @@ public class mAuto extends LinearOpMode {
     final int wheelRPM = 135;
     final double wheelDiameter = 4;
     final float spinTime = (float) 2.78; //Please forgive me
-    final float timePerDegree = spinTime / 360;
+    final float timePerDegree = spinTime / 36;
+
+    float tileLength = 13.5f;
 
     public void setAllPower(double power){
         rfDrive.setPower(-power);
@@ -88,7 +90,7 @@ public class mAuto extends LinearOpMode {
 
     }
 
-    public void driveForTime(double power, double time, Boolean stopAfter){
+    public void driveForTime(double power, double time, boolean stopAfter){
         try {
             runtime.reset();
             while (opModeIsActive() && runtime.seconds() < time) {
@@ -99,20 +101,20 @@ public class mAuto extends LinearOpMode {
                 setAllPower(0);
             }
 
-        }finally {
+        }catch(Exception e) {
             telemetry.addData("Exception Caught", "Something went wrong while trying to driveForTime()");
             telemetry.update();
         }
     }
 
-    public void driveForDistance(int inches, double rawPower, boolean stopAfter){
+    public void driveForDistance(float inches, double rawPower, boolean stopAfter){
 
 
         double power = Math.abs(rawPower);
 
          double inPerSec= 1 / ((wheelRPM * power) * (wheelDiameter * PI) / 60);
 
-        driveForTime(power, inPerSec * inches, stopAfter);
+        driveForTime(rawPower, inPerSec * inches, stopAfter);
 
     }
 
@@ -142,10 +144,10 @@ public class mAuto extends LinearOpMode {
                 }
                 else if(direction == "L"){
                     rfDrive.setPower(power);
-                    rbDrive.setPower(-power);
+                    rbDrive.setPower(power);
 
                     lfDrive.setPower(power);
-                    lbDrive.setPower(-power);
+                    lbDrive.setPower(power);
                 }
                 else{
                     telemetry.addData("Exception Caught", "turnForTime did not receive a valid direction, received " + direction);
@@ -188,12 +190,17 @@ public class mAuto extends LinearOpMode {
         runtime.reset();
 
 
-        //Main auto. For power setting please use the abstraction functions above, try not to set the power manually for neatness sake.
-        while(true) {
-            driveForDistance(30, 1, true);
-            turnForDegrees(90, 1, true);
 
-        }
+        //Main auto. For power setting please use the abstraction functions above, try not to set the power manually for neatness sake.
+
+            driveForDistance(tileLength*(3.5f*1.44f),1,true);
+
+            driveForDistance(tileLength*1,-1,true);
+            setAllPower(0);
+
+
+
+
 
     }
 

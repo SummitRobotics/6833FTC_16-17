@@ -1,3 +1,5 @@
+package org.firstinspires.ftc.teamcode;
+
 /*
 Copyright (c) 2016 Robert Atkinson
 
@@ -30,13 +32,23 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.toDegrees;
 
 /**
  * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
@@ -51,9 +63,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="6833 TeleOp", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Autonomous(name="6833 Auto 7 second delay", group="Autonomous")  // @Autonomous(...) is the other common choice
 
-public class Linear_Template extends LinearOpMode {
+public class mAuto7 extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -62,9 +74,94 @@ public class Linear_Template extends LinearOpMode {
     DcMotor rbDrive;
     DcMotor lfDrive;
     DcMotor lbDrive;
-    /*DcMotor intake;*/
+
+    final int wheelRPM = 135;
+    final double wheelDiameter = 4;
+    final float spinTime = (float) 2.78; //Please forgive me
+    final float timePerDegree = spinTime / 360;
+
+    float tileLength = 13.5f;
+
+    public void setAllPower(double power){
+        rfDrive.setPower(-power);
+        rbDrive.setPower(power);
+        lfDrive.setPower(power);
+        lbDrive.setPower(-power);
+
+    }
+
+    public void driveForTime(double power, double time, Boolean stopAfter){
+        try {
+            runtime.reset();
+            while (opModeIsActive() && runtime.seconds() < time) {
+                setAllPower(power);
+
+            }
+            if(stopAfter){
+                setAllPower(0);
+            }
+
+        }finally {
+            telemetry.addData("Exception Caught", "Something went wrong while trying to driveForTime()");
+            telemetry.update();
+        }
+    }
+
+    public void driveForDistance(float inches, double rawPower, boolean stopAfter){
 
 
+        double power = Math.abs(rawPower);
+
+        double inPerSec= 1 / ((wheelRPM * power) * (wheelDiameter * PI) / 60);
+
+        driveForTime(rawPower, inPerSec * inches, stopAfter);
+
+    }
+
+    //Negative power for left turn, positive power for right
+    public void turnForDegrees(float degrees, float power, boolean stopAfter){
+        String Dir;
+        if(power > 0){
+            Dir = "R";
+        }else{
+            Dir = "L";
+        }
+        turnForTime(power, degrees * timePerDegree, Dir, stopAfter);
+    }
+
+    //Direction takes only two values! L for left and R for right. Error handling is setup if you do it wrong, but it's still not good
+
+    public void turnForTime(float power,  float time, String direction, Boolean stopAfter){
+
+        runtime.reset();
+        while(opModeIsActive() && runtime.seconds() < time){
+            if(direction == "R"){
+                rfDrive.setPower(power);
+                rbDrive.setPower(power);
+
+                lfDrive.setPower(power);
+                lbDrive.setPower(power);
+            }
+            else if(direction == "L"){
+                rfDrive.setPower(power);
+                rbDrive.setPower(power);
+
+                lfDrive.setPower(power);
+                lbDrive.setPower(power);
+            }
+            else{
+                telemetry.addData("Exception Caught", "turnForTime did not receive a valid direction, received " + direction);
+                telemetry.update();
+            }
+
+
+
+        }
+        if(stopAfter){
+            setAllPower(0);
+        }
+
+    }
 
 
     @Override
@@ -76,8 +173,6 @@ public class Linear_Template extends LinearOpMode {
         rbDrive = hardwareMap.dcMotor.get("right_back");
         lfDrive = hardwareMap.dcMotor.get("left_front");
         lbDrive = hardwareMap.dcMotor.get("left_back");
-        /*
-        intake = hardwareMap.dcMotor.get("intake");*/
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
@@ -94,32 +189,29 @@ public class Linear_Template extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.update();
-
-            /*if (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0) {*/
-                rfDrive.setPower((gamepad1.left_stick_y) + (gamepad1.left_stick_x));
-                lfDrive.setPower(-(gamepad1.left_stick_y) + (gamepad1.left_stick_x));
-                rbDrive.setPower(-(gamepad1.left_stick_y) + (gamepad1.left_stick_x));
-                lbDrive.setPower((gamepad1.left_stick_y) + (gamepad1.left_stick_x));
-
-
-            /*if (gamepad1.right_stick_x != 0) {*/
-                rfDrive.setPower((-gamepad1.right_stick_x));
-                lfDrive.setPower((-gamepad1.right_stick_x));
-                rbDrive.setPower((gamepad1.right_stick_x));
-                lbDrive.setPower((gamepad1.right_stick_x));
-
-            if (gamepad1.right_stick_x == 0 && gamepad1.left_stick_y == 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_y == 0) {
-                rfDrive.setPower(0);
-                lfDrive.setPower(0);
-                rbDrive.setPower(0);
-                lbDrive.setPower(0);
-            }*/
-
-
+        while(runtime.seconds() < 7 && opModeIsActive()){
+            setAllPower(0);
         }
+
+        //Main auto. For power setting please use the abstraction functions above, try not to set the power manually for neatness sake.
+
+        /* start farthest from beacons. hit ball and possible beacon (start 45 to wall facing balls)*/
+        driveForDistance(tileLength*(3.5f*1.44f),1,true);
+
+        driveForDistance(tileLength*1,-1,true);
+        setAllPower(0);
+
+        /*45 to wall closest to beacons. knock ball and take beacon*/
+          /*  driveForDistance(tileLength* 2.5f, 1, true);
+            turnForDegrees(90, 1, true);
+            driveForDistance(tileLength* 2f, 1, true);
+            turnForDegrees(45,1,true);
+            driveForDistance(tileLength*3f,1,true); */
+
+
+
+
+
     }
+
 }
