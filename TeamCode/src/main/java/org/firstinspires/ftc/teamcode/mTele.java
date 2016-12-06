@@ -53,7 +53,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="6833 TeleOp", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 
-public class Linear_Template extends LinearOpMode {
+public class mTele extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -63,8 +63,6 @@ public class Linear_Template extends LinearOpMode {
     DcMotor lfDrive;
     DcMotor lbDrive;
     /*DcMotor intake;*/
-
-
 
 
     @Override
@@ -99,27 +97,29 @@ public class Linear_Template extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
-            /*if (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0) {*/
+            if (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0) {
                 rfDrive.setPower((gamepad1.left_stick_y) + (gamepad1.left_stick_x));
                 lfDrive.setPower(-(gamepad1.left_stick_y) + (gamepad1.left_stick_x));
                 rbDrive.setPower(-(gamepad1.left_stick_y) + (gamepad1.left_stick_x));
                 lbDrive.setPower((gamepad1.left_stick_y) + (gamepad1.left_stick_x));
 
+            }
+                if (gamepad1.right_stick_x != 0) {
+                    rfDrive.setPower((-gamepad1.right_stick_x));
+                    lfDrive.setPower((-gamepad1.right_stick_x));
+                    rbDrive.setPower((gamepad1.right_stick_x));
+                    lbDrive.setPower((gamepad1.right_stick_x));
+                }
 
-            /*if (gamepad1.right_stick_x != 0) {*/
-                rfDrive.setPower((-gamepad1.right_stick_x));
-                lfDrive.setPower((-gamepad1.right_stick_x));
-                rbDrive.setPower((gamepad1.right_stick_x));
-                lbDrive.setPower((gamepad1.right_stick_x));
-
-            if (gamepad1.right_stick_x == 0 && gamepad1.left_stick_y == 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_y == 0) {
-                rfDrive.setPower(0);
-                lfDrive.setPower(0);
-                rbDrive.setPower(0);
-                lbDrive.setPower(0);
-            }*/
+                    if (gamepad1.right_stick_x == 0 && gamepad1.left_stick_y == 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_y == 0) {
+                        rfDrive.setPower(0);
+                        lfDrive.setPower(0);
+                        rbDrive.setPower(0);
+                        lbDrive.setPower(0);
+                    }
 
 
+                }
+            }
         }
-    }
-}
+

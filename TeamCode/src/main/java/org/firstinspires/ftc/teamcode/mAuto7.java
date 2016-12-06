@@ -63,7 +63,7 @@ import static java.lang.Math.toDegrees;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="6833 Auto 7 second delay", group="Autonomous")  // @Autonomous(...) is the other common choice
+@Autonomous(name="6833 Auto with 7 second delay", group="Autonomous")  // @Autonomous(...) is the other common choice
 
 public class mAuto7 extends LinearOpMode {
 
